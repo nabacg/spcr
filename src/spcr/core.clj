@@ -8,10 +8,8 @@
             [compojure.route :as c-route]
             [ring.server.standalone :as server]
             [ring.middleware.json :as ring-json]
-            [monger.core :as mg]
-            [monger.collection :as mc]
-            [spcr.parser :as parser :refer [file->dicts]])
-  (:import [com.mongodb MongoOptions ServerAddress]))
+            [spcr.parser :as parser]
+            [spcr.mongodal :as db]))
 
 (def test-data  (str
                  (clojure.string/replace
@@ -19,14 +17,26 @@
                   #"\."
                   "")
                  "PEB_ETF.csv"))
-(def testp "/home/cab/DEV/projects/spcr/resources/data/PEB_ETF.csv")
+
+(defn get-data []
+  (->> (db/get-all)
+       (map #(dissoc % :_id))))
+
 
 (defroutes endpoints
   (GET "/" [] (response {:key "Hello world"}))
-  (GET "/data" [] (response (parser/file->dicts test-data))))
+  (GET "/data" [] (response (get-data))))
 
 
 
+
+(defn load-test-data [file-path]
+  (-> (parser/file->dicts file-path)
+      db/save))
+
+(defn init []
+  (if (nil? (seq (db/get-all)))
+    (load-test-data test-data)))
 
 (def app
   (-> (var endpoints)
@@ -36,6 +46,7 @@
       (ring-json/wrap-json-response)))
 
 (defn start-server [port]
+  (init)
   (server/serve #'app
                 {:port port
                  :join? false
@@ -43,6 +54,7 @@
 
 
 (defn -main
+
   "starting new server listening on port"
   [port]
   (start-server (Integer. port)))
