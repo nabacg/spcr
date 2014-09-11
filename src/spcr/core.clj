@@ -13,7 +13,12 @@
             [spcr.parser :as parser :refer [file->dicts]])
   (:import [com.mongodb MongoOptions ServerAddress]))
 
-(def test-data "../resources/data/PEB_ETF.csv")
+(def test-data  (str
+                 (clojure.string/replace
+                  (-> (java.io.File. ".") .getAbsolutePath)
+                  #"\."
+                  "")
+                 "PEB_ETF.csv"))
 (def testp "/home/cab/DEV/projects/spcr/resources/data/PEB_ETF.csv")
 
 (defroutes endpoints
