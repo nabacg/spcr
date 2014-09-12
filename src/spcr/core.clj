@@ -23,9 +23,16 @@
        (map #(dissoc % :_id))))
 
 
+(defn categorize []
+  (->> (get-data)
+       (filter #(< (read-string (:Close %)) 40))
+      (group-by (fn [{close :Close low :Low high :High}]
+                  (mod (apply + (map read-string [close low high])) 10)))))
+
 (defroutes endpoints
   (GET "/" [] (response {:key "Hello world"}))
-  (GET "/data" [] (response (get-data))))
+  (GET "/data" [] (response (get-data)))
+  (GET "/label" [] (response (categorize))))
 
 
 
