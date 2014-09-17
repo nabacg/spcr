@@ -24,6 +24,10 @@
   (->> (db/get-all)
        (map #(dissoc % :_id))))
 
+(defn category-stats []
+  (->> (categorize)
+       (map (fn [[key values]] [key (count values)]))
+       (into {})))
 
 (defn categorize []
   (->> (get-data)
@@ -45,6 +49,7 @@
   (GET "/health" [] (response {:key "Hello world"}))
   (GET "/data" [] (response (get-data)))
   (GET "/label" [] (response (categorize)))
+  (GET "/label-stats" [] (response (category-stats)))
   (mp/wrap-multipart-params
    (POST "/upload" {{{tempfile-path :tempfile} "file"} :multipart-params}
          (do

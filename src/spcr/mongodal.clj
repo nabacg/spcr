@@ -20,7 +20,6 @@
 (defn db-get-all [db]
   (mc/find-maps db collection-name))
 
-
 (defn get-all []
   (-> (db-connect)
       (db-get-all)))
