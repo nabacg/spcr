@@ -5,6 +5,8 @@
             [compojure.core
              :as c-core
              :refer [defroutes GET POST PUT DELETE HEAD OPTIONS PATCH ANY]]
+            (ring.middleware [multipart-params :as mp])
+            [clojure.java.io :as io]
             [compojure.route :as c-route]
             [ring.server.standalone :as server]
             [ring.middleware.json :as ring-json]
@@ -26,24 +28,34 @@
 (defn categorize []
   (->> (get-data)
        (filter #(< (read-string (:Close %)) 40))
-      (group-by (fn [{close :Close low :Low high :High}]
-                  (mod (apply + (map read-string [close low high])) 10)))))
+       (group-by (fn [{close :Close low :Low high :High}]
+                   (let [cat-num (mod (apply + (map read-string [close low high])) 10)]
+                     (cond
+                      (> cat-num 9) :very-high
+                      (> cat-num 8.5) :high
+                      (> cat-num 8) :medium
+                      :default      :low))))))
 
-(defroutes endpoints
-  (GET "/" [] (response {:key "Hello world"}))
-  (GET "/data" [] (response (get-data)))
-  (GET "/label" [] (response (categorize))))
-
-
-
-
-(defn load-test-data [file-path]
+(defn import-file [file-path]
   (-> (parser/file->dicts file-path)
       db/save))
 
+(defroutes endpoints
+  (GET "/" [] (slurp "resources/public/html/index.html"))
+  (GET "/health" [] (response {:key "Hello world"}))
+  (GET "/data" [] (response (get-data)))
+  (GET "/label" [] (response (categorize)))
+  (mp/wrap-multipart-params
+   (POST "/upload" {{{tempfile-path :tempfile} "file"} :multipart-params}
+         (do
+           (import-file tempfile-path)
+           (response "Import successful!"))))
+  (c-route/resources "/"))
+
+
 (defn init []
   (if (nil? (seq (db/get-all)))
-    (load-test-data test-data)))
+    (import-file test-data)))
 
 (def app
   (-> (var endpoints)

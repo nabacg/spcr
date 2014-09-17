@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Address book</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<div class="row">
+    <div class="col-lg-10 col-lg-offset-1">
+        <h1>Select Data View</h1>
+        <ul>
+          <li><a href="/data">Show All Data</a> </li>
+          <li><a href="/label">Categorize</a></li>
+        </ul>
+        <div id="lookup-view" class="panel">
+            <h2>Import File</h2>
+            <form action="/upload" method="post" enctype="multipart/form-data">
+              <label for="file">Filename:</label>
+              <input type="file" name="file" id="file"><br>
+              <input type="submit" name="submit" value="Submit">
+            </form>
+            <pre id="lookupEntryResult"></pre>
+        </div>
+
+        </div>
+    </div>
+</body>
+</html>
