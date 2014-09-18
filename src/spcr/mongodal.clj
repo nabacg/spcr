@@ -4,7 +4,7 @@
   (:import [com.mongodb MongoOptions ServerAddress]))
 
 
-(def collection-name "raw-data")
+(def collection-name "rawdata")
 
 (defn db-save [db data]
   (mc/insert-batch
