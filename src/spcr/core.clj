@@ -20,25 +20,41 @@
                   "")
                  "PEB_ETF.csv"))
 
+(defn abs [n] (max n (- n))) ;; move to Utils namespace
+
+(def rule-predicates {:high-daily-diff (fn [{high :High low :Low}]
+                                         (> (abs (- high low)) 3))
+                      :daily-gain (fn [{open :Open close :Close}]
+                                    (> close open))
+                      :high-volume (fn [{volume :Volume}]
+                                     (> volume 50000.0))
+                      :default (fn [_] :true)})
+
+(defn get-matching-rules [record rules]
+  (map (fn [[key pred-fn]]
+         (if (pred-fn record)
+           key
+           nil))
+       rules))
+
+(defn rule-engine [data rules]
+  (map
+   (fn [row]
+     (assoc row :labels (get-matching-rules row rules )))
+   data))
+
 (defn get-data []
   (->> (db/get-all)
        (map #(dissoc % :_id))))
 
-(defn category-stats []
-  (->> (categorize)
-       (map (fn [[key values]] [key (count values)]))
-       (into {})))
+(defn get-labeled-data [] ;todo add a query mechanism to filter on labels
+  (-> (get-data)
+      (rule-engine rule-predicates)))
 
-(defn categorize []
-  (->> (get-data)
-       (filter #(< (read-string (:Close %)) 40))
-       (group-by (fn [{close :Close low :Low high :High}]
-                   (let [cat-num (mod (apply + (map read-string [close low high])) 10)]
-                     (cond
-                      (> cat-num 9) :very-high
-                      (> cat-num 8.5) :high
-                      (> cat-num 8) :medium
-                      :default      :low))))))
+(defn get-label-stats []
+  (->> (get-labeled-data)
+       (group-by :labels)
+       (map (fn [[k v]] [k (count v)]))))
 
 (defn import-file [file-path]
   (-> (parser/file->dicts file-path)
@@ -48,8 +64,8 @@
   (GET "/" [] (slurp "resources/public/html/index.html"))
   (GET "/health" [] (response {:key "Hello world"}))
   (GET "/data" [] (response (get-data)))
-  (GET "/label" [] (response (categorize)))
-  (GET "/label-stats" [] (response (category-stats)))
+  (GET "/label" [] (response (get-labeled-data)))
+  (GET "/label-stats" [] (response (get-label-stats)))
   (mp/wrap-multipart-params
    (POST "/upload" {{{tempfile-path :tempfile} "file"} :multipart-params}
          (do
