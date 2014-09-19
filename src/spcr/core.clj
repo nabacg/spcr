@@ -70,7 +70,7 @@
    (POST "/upload" {{{tempfile-path :tempfile} "file"} :multipart-params}
          (do
            (import-file tempfile-path)
-           (response "Import successful!"))))
+           (response "Import successful! Go back to review your data"))))
   (c-route/resources "/"))
 
 
