@@ -17,5 +17,4 @@
   :local-repo "lib"
   :min-lein-version "2.0.0"
   :uberjar-name "spcr.jar"
-  :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

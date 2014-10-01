@@ -33,7 +33,6 @@
   (mc/find-maps db (:collection-name @db-config)))
 
 (defn get-all []
-  (println "!!!!!!" @db-config)
   (-> (db-connect)
       (db-get-all)))
 
