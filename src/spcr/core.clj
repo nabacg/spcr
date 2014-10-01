@@ -54,7 +54,9 @@
 
 (defn get-label-stats []
   (->> (get-labeled-data)
-       (group-by :labels)
+       (map :labels)
+       (flatten)
+       (group-by identity)
        (map (fn [[k v]] [k (count v)]))))
 
 (defn import-file [file-path]
