@@ -20,6 +20,8 @@
                   "")
                  "PEB_ETF.csv"))
 
+(def heroku-mongo-connection-uri "mongodb://spcr-user:VerySafeThisIsIndeed@oceanic.mongohq.com:10095/app25545053") ;
+
 (defn abs [n] (max n (- n))) ;; move to Utils namespace
 
 (def rule-predicates {:high-daily-diff (fn [{high :High low :Low}]
@@ -77,7 +79,10 @@
   (c-route/resources "/"))
 
 
-(defn init []
+(defn init [env]
+  (db/init {:collection-name "rawdata"
+            :db-name "spcr-db"
+            :uri (if (= env :prod) heroku-mongo-connection-uri nil)})
   (if (nil? (seq (db/get-all)))
     (import-file test-data)))
 
@@ -88,8 +93,8 @@
       (ring-json/wrap-json-body {:keywords? true})
       (ring-json/wrap-json-response)))
 
-(defn start-server [port]
-  (init)
+(defn start-server [port env]
+  (init env)
   (server/serve #'app
                 {:port port
                  :join? false
@@ -97,7 +102,6 @@
 
 
 (defn -main
-
   "starting new server listening on port"
-  [port]
-  (start-server (Integer. port)))
+  [port env]
+  (start-server (Integer. port) (keyword env)))
