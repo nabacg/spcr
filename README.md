@@ -1,31 +1,27 @@
-# spcr
+# SPCR 
 
-FIXME: description
+as in Spend Parse Categorize Report is a simple website that allows to upload, parse CSV files and store them in MongoDb, aimed at a help in categorizing expenses via bank statement processing.
 
 ## Installation
 
-Download from http://example.com/FIXME.
+For dev installation , download MongoDb from http://www.mongodb.org/downloads
+
+Run mongod process if needed, i.e. if you just downloaded Mongo binaries run command below 
+
+    $ ./mongo-download-folder/bin/mongod --dbpath ~/path-where-you-want-to-store-mongo-data --smallfiles
+    
+Checkout this repo from github
+
+Run SPCR from spcr root folder (7777 is a sample port )
+
+    $ lein run 7777 dev
+    
 
 ## Usage
 
-FIXME: explanation
+Test on: http://spcr.herokuapp.com
 
-    $ java -jar spcr-0.1.0-standalone.jar [args]
 
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
 ### Might be Useful
 
 ## License
