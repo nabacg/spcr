@@ -31,11 +31,12 @@
                       :default (fn [_] :true)})
 
 (defn get-matching-rules [record rules]
-  (map (fn [[key pred-fn]]
-         (if (pred-fn record)
-           key
-           nil))
-       rules))
+  (remove nil?
+          (map (fn [[key pred-fn]]
+                 (if (pred-fn record)
+                   key
+                   nil))
+               rules)))
 
 (defn rule-engine [data rules]
   (map
