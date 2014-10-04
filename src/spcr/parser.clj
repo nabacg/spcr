@@ -16,6 +16,23 @@
     (Float. str)
     str))
 
+(defn str->num [str]
+  (Float. str))
+
+(defn date? [str]
+  (re-matches #"[0-9]{4}-[0-9]{2}-[0-9]{2}" str))
+
+(defn str->date [str]
+  (.parse
+      (java.text.SimpleDateFormat. "yyyy-MM-dd")
+      str))
+
+(defn try-cast [str]
+  (cond
+   (numeric? str)  (str->num str)
+   (date? str) (str->date str)
+   :default str))
+
 (defn file->list [path]
   (with-open [input-file (io/reader path)]
     (doall
@@ -23,7 +40,7 @@
 
 (defn list->dicts [[header & body]]
   (let [keys (map keyword header)]
-    (map #(zipmap keys (map cast-numerics %))
+    (map #(zipmap keys (map try-cast %))
          body)))
 
 (defn file->dicts [path]
