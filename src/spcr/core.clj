@@ -47,7 +47,7 @@
    data))
 
 (defn get-data []
-  (->> (db/get-all)
+  (->> (db/get-all "rawdata")
        (map #(dissoc % :_id))))
 
 (defn get-labeled-data [] ;todo add a query mechanism to filter on labels
@@ -83,7 +83,7 @@
   (db/init {:collection-name "rawdata"
             :db-name "spcr-db"
             :uri (if (= env :prod) heroku-mongo-connection-uri nil)})
-  (if (nil? (seq (db/get-all)))
+  (if (nil? (seq (get-data)))
     (import-file test-data)))
 
 (def app

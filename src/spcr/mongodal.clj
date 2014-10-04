@@ -4,14 +4,14 @@
   (:import [com.mongodb MongoOptions ServerAddress]))
 
 (def db-config (atom nil))
-                                        ;{:collection-name "rawdata" :db-name "spcr-db" :uri nil} ;:uri is optional if wanna connect via uri for Heroku, else connects to localhost
+
 (defn init [config]
   (reset! db-config config))
 
-(defn db-save [db data]
+(defn db-save [db collection-name data]
   (mc/insert-batch
    db
-   (:collection-name @db-config)
+   collection-name
    data))
 
 (defn db-connect-via-uri [db-name uri]
@@ -28,14 +28,14 @@
       (db-connect-localhost db-name)
       (db-connect-via-uri db-name uri))))
 
+(defn db-get-collection [db collection-name]
+  (mc/find-maps db collection-name))
 
-(defn db-get-all [db]
-  (mc/find-maps db (:collection-name @db-config)))
+(defn get-all [name]
+  (->
+   (db-connect)
+   (db-get-collection name)))
 
-(defn get-all []
+(defn save [data name]
   (-> (db-connect)
-      (db-get-all)))
-
-(defn save [data]
-  (-> (db-connect)
-      (db-save data)))
+      (db-save data name)))
