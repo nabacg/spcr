@@ -38,4 +38,4 @@
 
 (defn save [data name]
   (-> (db-connect)
-      (db-save data name)))
+      (db-save name data)))

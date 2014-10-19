@@ -63,7 +63,7 @@
 
 (defn import-file [file-path]
   (-> (parser/file->dicts file-path)
-      db/save))
+      (db/save "rawdata")))
 
 (defroutes endpoints
   (GET "/" [] (slurp "resources/public/html/index.html"))
