@@ -34,7 +34,7 @@
 
 (def default-rules { :default (fn [_] :true)
                     ;functions using other functions aren't allowed at the momment
-                    :high-daily-diff '(fn [{high :High low :Low}]
+                    :high-daily-diff (fn [{high :High low :Low}]
                                          (> (abs (- high low)) 3))})
 
 (defn get-matching-rules [record rules]
