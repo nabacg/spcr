@@ -8,6 +8,7 @@
             (ring.middleware [multipart-params :as mp])
             [clojure.java.io :as io]
             [compojure.route :as c-route]
+            [clojure.edn :as edn]
             [ring.server.standalone :as server]
             [ring.middleware.json :as ring-json]
             [spcr.parser :as parser]
@@ -24,13 +25,17 @@
 
 (defn abs [n] (max n (- n))) ;; move to Utils namespace
 
-(def rule-predicates {:high-daily-diff (fn [{high :High low :Low}]
-                                         (> (abs (- high low)) 3))
-                      :daily-gain (fn [{open :Open close :Close}]
+(def rule-predicate-forms {
+                      :daily-gain '(fn [{open :Open close :Close}]
                                     (> close open))
-                      :high-volume (fn [{volume :Volume}]
+                      :high-volume '(fn [{volume :Volume}]
                                      (> volume 50000.0))
-                      :default (fn [_] :true)})
+                      :default '(fn [_] :true)})
+
+(def default-rules { :default (fn [_] :true)
+                    ;functions using other functions aren't allowed at the momment
+                    :high-daily-diff '(fn [{high :High low :Low}]
+                                         (> (abs (- high low)) 3))})
 
 (defn get-matching-rules [record rules]
   (remove nil?
@@ -50,9 +55,15 @@
   (->> (db/get-all "rawdata")
        (map #(dissoc % :_id))))
 
+(defn get-rules []
+  (->> (db/get-all "categoryrules")
+       (map (fn [{name :name pred-fn :predicate}]
+              [(keyword  name) (eval  (edn/read-string pred-fn))]))
+       (into {})))
+
 (defn get-labeled-data [] ;todo add a query mechanism to filter on labels
   (-> (get-data)
-      (rule-engine rule-predicates)))
+      (rule-engine (merge default-rules (get-rules)))))
 
 (defn get-label-stats []
   (->> (get-labeled-data)
@@ -79,10 +90,19 @@
   (c-route/resources "/"))
 
 
+(defn prep-rules-for-saving [rules-list]
+  (map
+   (fn [[k v]] {:name  k  :predicate (pr-str v)})
+   rules-list))
+
 (defn init [env]
   (db/init {:collection-name "rawdata"
             :db-name "spcr-db"
             :uri (if (= env :prod) heroku-mongo-connection-uri nil)})
+  (if (nil? (seq (get-rules)))
+    (db/save
+     (prep-rules-for-saving rule-predicate-forms)
+     "categoryrules"))
   (if (nil? (seq (get-data)))
     (import-file test-data)))
 
