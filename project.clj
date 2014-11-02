@@ -11,7 +11,8 @@
                  [ring-server "0.3.1" :exclusions [[org.clojure/clojure]
                                                    [ring]]]
                  [ring/ring-json "0.3.1"]
-                 [com.novemberain/monger "2.0.0"]]
+                 [com.novemberain/monger "2.0.0"]
+                 [jarohen/nomad "0.7.0"]]
 
   :main ^:skip-aot spcr.core
   :local-repo "lib"

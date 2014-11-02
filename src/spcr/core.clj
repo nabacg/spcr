@@ -12,7 +12,8 @@
             [ring.server.standalone :as server]
             [ring.middleware.json :as ring-json]
             [spcr.parser :as parser]
-            [spcr.mongodal :as db]))
+            [spcr.mongodal :as db]
+            [nomad :refer [defconfig]]))
 
 (def test-data  (str
                  (clojure.string/replace
@@ -21,7 +22,12 @@
                   "")
                  "PEB_ETF.csv"))
 
-(def heroku-mongo-connection-uri "mongodb://spcr-user:VerySafeThisIsIndeed@oceanic.mongohq.com:10095/app25545053") ;
+(defconfig app-config (io/resource "config.edn"))
+
+(defn get-db-config []
+  (-> (:db-config (app-config))
+      (assoc :uri (System/getenv "SPCR_MONGO_URL"))))
+
 
 (defn abs [n] (max n (- n))) ;; move to Utils namespace
 
@@ -30,10 +36,11 @@
                                     (> close open))
                       :high-volume '(fn [{volume :Volume}]
                                      (> volume 50000.0))
-                      :default '(fn [_] :true)})
+                           :default '(fn [_] :true)})
 
+;functions using other functions aren't allowed at the momment
 (def default-rules { :default (fn [_] :true)
-                    ;functions using other functions aren't allowed at the momment
+
                     :high-daily-diff (fn [{high :High low :Low}]
                                          (> (abs (- high low)) 3))})
 
@@ -95,10 +102,8 @@
    (fn [[k v]] {:name  k  :predicate (pr-str v)})
    rules-list))
 
-(defn init [env]
-  (db/init {:collection-name "rawdata"
-            :db-name "spcr-db"
-            :uri (if (= env :prod) heroku-mongo-connection-uri nil)})
+(defn init []
+  (db/init (get-db-config))
   (if (nil? (seq (get-rules)))
     (db/save
      (prep-rules-for-saving rule-predicate-forms)
@@ -113,8 +118,8 @@
       (ring-json/wrap-json-body {:keywords? true})
       (ring-json/wrap-json-response)))
 
-(defn start-server [port env]
-  (init env)
+(defn start-server [port]
+  (init)
   (server/serve #'app
                 {:port port
                  :join? false
@@ -123,5 +128,5 @@
 
 (defn -main
   "starting new server listening on port"
-  [port env]
-  (start-server (Integer. port) (keyword env)))
+  [port]
+  (start-server (Integer. port)))
