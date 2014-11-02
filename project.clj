@@ -18,4 +18,6 @@
   :local-repo "lib"
   :min-lein-version "2.0.0"
   :uberjar-name "spcr.jar"
+  :plugins [[jarohen/lein-frodo "0.4.1"]]
+  :frodo/config-resource "config.edn"
   :profiles {:uberjar {:aot :all}})

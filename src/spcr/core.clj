@@ -13,7 +13,9 @@
             [ring.middleware.json :as ring-json]
             [spcr.parser :as parser]
             [spcr.mongodal :as db]
-            [nomad :refer [defconfig]]))
+            [nomad :refer [defconfig]]
+            [frodo.web :refer [App]]
+            [frodo.core]))
 
 (def test-data  (str
                  (clojure.string/replace
@@ -25,6 +27,7 @@
 (defconfig app-config (io/resource "config.edn"))
 
 (defn get-db-config []
+  (println (app-config))
   (-> (:db-config (app-config))
       (assoc :uri (System/getenv "SPCR_MONGO_URL"))))
 
@@ -118,12 +121,21 @@
       (ring-json/wrap-json-body {:keywords? true})
       (ring-json/wrap-json-response)))
 
+(def frodo-app
+  (reify App
+    (start! [_]
+      (do  (init)
+           {:frodo/handler app}))
+    (stop! [_ system]
+      (println "Stopping app"))))
+
 (defn start-server [port]
   (init)
   (server/serve #'app
                 {:port port
                  :join? false
                  :open-browser? false}))
+
 
 
 (defn -main

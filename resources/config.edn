@@ -1,0 +1,20 @@
+{:db-config
+ {:collection-name "rawdata"
+  :db-name "spcr-db"}
+ :nomad/environments
+ {"dev"
+  {:db-config
+   {:collection-name "rawdata"
+    :db-name "spcr-db"}
+   :frodo/config {:nrepl {:port 7779
+                          :cljs-repl? true}
+                  :web {:port 7777
+                        :app spcr.core/frodo-app}}}
+  "heroku"
+  {:db-config
+   {:collection-name "rawdata"
+    :db-name "spcr-db"
+    :uri #nomad/env-var "SPCR_MONGO_URL"}
+   :frodo/config {:web {:port #nomad/edn-env-var "PORT"
+                        :app spcr.core/frodo-app}}}}
+ }
