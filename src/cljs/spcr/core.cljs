@@ -54,19 +54,26 @@
   [:div
    ( draw-table (:data-view @state))])
 
-(defn match-all-columns [filter-str]
+(defn string-contains? [value pattern]
+  (> (.indexOf (str value) pattern) -1))
+
+(defn match-on-all-columns [filter-str]
   (fn [row]
     (some (fn [cell]
-            (re-find
-             (re-pattern filter-str)
-             (str cell)))
+            (if (coll? cell)
+              (some #(string-contains? % filter-str) cell)
+              (string-contains? cell filter-str)))
           (vals row))))
+
+(defn match-on-label [filter-str]
+  (fn [{labels "labels" :as row}]
+    (some #(string-contains? % filter-str) labels)))
 
 (defn handle-filter [filter-str]
   (.log js/console filter-str)
   (let [raw-data (:raw-data @state)
         filtered-data (if (not (blank? filter-str))
-                        (filter match-all-columns raw-data)
+                        (filter (match-on-all-columns filter-str) raw-data)
                         raw-data)]
     (swap! state #(-> %
                       (assoc :filter filter-str)
