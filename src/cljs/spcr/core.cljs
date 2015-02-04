@@ -43,12 +43,14 @@
 (defn draw-table [data]
   (let [headers (keys (first data))]
     [:div.row
-     [:table.table.table-hover.table-bordered
-      [:tr
-       (for [header headers]
-         [:th header])]
-      (for [row data]
-        [table-row headers row])]]))
+     [:table#main-table.table.table-hover.table-bordered {:cell-spacing "0" :width "100%"}
+      [:thead
+       [:tr
+        (for [header headers]
+          [:th header])]]
+      [:tbody
+       (for [row data]
+         [table-row headers row])]]]))
 
 (defn draw-list []
   [:div
@@ -79,6 +81,11 @@
                       (assoc :filter filter-str)
                       (assoc :data-view filtered-data)))))
 
+(defn home-mounted []
+  (.ready (js/$ js/document)
+          (fn [] (.DataTable (js/$ "#main-table")))))
+
+
 (defn home []
   [:div
    [:div.row
@@ -91,7 +98,9 @@
     [draw-list]]])
 
 
+(defn home-component []
+  (reagent/create-class {:component-function home
+                         :component-did-mount home-mounted}))
 
-
-(reagent/render-component [home] (.getElementById js/document "app"))
+(reagent/render-component [home-component] (.getElementById js/document "app"))
 (get-data)
