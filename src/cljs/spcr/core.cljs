@@ -12,13 +12,21 @@
                   :filter nil
                   :data-view []}))
 
+(comment
+  (add-watch state :raw-data (fn [key ref old-value new-value]
+                               (.setTimeout js/window #(.DataTable (js/$ "#main-table"))
+                                          300))))
+
 (defn get-data []
   (GET "/label"
        {
         :format :json
-        :handler (fn [raw-data] (swap! state #(-> %
-                                                 (assoc :raw-data raw-data)
-                                                 (assoc :data-view raw-data))))}))
+        :handler (fn [raw-data]
+                   (do  (swap! state #(-> %
+                                          (assoc :raw-data raw-data)
+                                          (assoc :data-view raw-data)))
+                        (.setTimeout js/window #(.DataTable (js/$ "#main-table"))
+                                          300)))}))
 (comment
   (defn list-items [lst]
     [:ul.list-group
@@ -54,7 +62,25 @@
 
 (defn draw-list []
   [:div
-   ( draw-table (:data-view @state))])
+   (comment
+    [:table#main-table.table.table-striped.table-bordered {:cell-spacing "0" :width "100%"}
+    [:thead
+     [:tr [:th "Name"]
+      [:th "Age"]]]
+    [:tbody
+     [:tr [:td "Matthew"]
+      [:td "26"]]
+     [:tr [:td "Anna"]
+      [:td "24"]]
+     [:tr [:td "Michelle"]
+      [:td "42"]]
+     [:tr [:td "Frank"]
+      [:td "46"]]]]
+    )
+
+   ( draw-table (:data-view @state))
+
+   ])
 
 (defn string-contains? [value pattern]
   (> (.indexOf (str value) pattern) -1))
@@ -102,5 +128,5 @@
   (reagent/create-class {:component-function home
                          :component-did-mount home-mounted}))
 
-(reagent/render-component [home-component] (.getElementById js/document "app"))
+(reagent/render-component [home] (.getElementById js/document "app"))
 (get-data)
