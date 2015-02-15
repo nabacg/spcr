@@ -24,6 +24,7 @@
   :main ^:skip-aot spcr.core
   :local-repo "lib"
   :min-lein-version "2.0.0"
+  :source-paths ["src/clj"]
   :uberjar-name "spcr.jar"
   :plugins [[jarohen/lein-frodo "0.4.1"]
             [lein-cljsbuild "1.0.3"]]
@@ -33,7 +34,7 @@
     :builds [{:id "dev"
               :source-paths ["src/cljs"]
               :compiler {:output-dir "resources/public/js/out",
-                        
+
                          :optimizations :whitespace,
                          :output-to "resources/public/js/app.js",
                          :source-map "resources/public/js/out.js.map",
