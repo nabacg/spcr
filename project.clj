@@ -24,27 +24,30 @@
   :main ^:skip-aot spcr.core
   :local-repo "lib"
   :min-lein-version "2.0.0"
+  :source-paths ["src/clj"]
   :uberjar-name "spcr.jar"
   :plugins [[jarohen/lein-frodo "0.4.1"]
             [lein-cljsbuild "1.0.3"]]
   :frodo/config-resource "config.edn"
 
   :cljsbuild {
-    :builds [{:id "dev"
-              :source-paths ["src/cljs"]
-              :compiler {:output-dir "resources/public/js/out"
-                         :asset-path "resources/public/js/out"
-                         :optimizations :none
-                         :output-to "resources/public/js/app.js"
-                         :source-map true
-                         :source-map-timestamp true
-                         :cache-analysis true
-                         :pretty-print true}}
+              :builds [{:id "dev"
+                        :source-paths ["src/cljs"]
+                        :compiler {:output-dir "resources/public/js/out"
+                                   :asset-path "resources/public/js/out"
+                                   :optimizations :none
+                                   :output-to "resources/public/js/app.js"
+                                   :source-map true
+                                   :source-map-timestamp true
+                                   :cache-analysis true
+                                   :pretty-print true}}
 
-             {:id "min"
-              :source-paths ["src/cljs"] ;; <<<<--- the dev source directory is excluded so no dev code
-              :compiler {:output-to "resources/public/js/app.js"
-                         :optimizations :advanced
-                         :pretty-print false}}
-             ]}
+                       {:id "min"
+                        :source-paths ["src/cljs"]
+                        :compiler {:output-to "resources/public/js/app.js"
+                                   :optimizations :advanced
+                                   :pretty-print false}}
+                       ]
+
+              }
   :profiles {:uberjar {:aot :all}})
