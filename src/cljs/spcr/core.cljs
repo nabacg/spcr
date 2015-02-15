@@ -12,11 +12,6 @@
                   :filter nil
                   :data-view []}))
 
-(comment
-  (add-watch state :raw-data (fn [key ref old-value new-value]
-                               (.setTimeout js/window #(.DataTable (js/$ "#main-table"))
-                                          300))))
-
 (defn get-data []
   (GET "/label"
        {
@@ -25,18 +20,8 @@
                    (do  (swap! state #(-> %
                                           (assoc :raw-data raw-data)
                                           (assoc :data-view raw-data)))
-                        (.setTimeout js/window #(.DataTable (js/$ "#main-table"))
-                                          300)))}))
-(comment
-  (defn list-items [lst]
-    [:ul.list-group
-     (for [i lst]
-       [:li.list-group-item
-        (str i)
-        (comment  (if (coll? i)
-                    (list-items i)
-                    (str i)))])]))
-
+                        (comment)  (.setTimeout js/window #(.DataTable (js/$ "#main-table"))
+                                                300)))}))
 (defn list-items [items]
   [:p (join ", " items)])
 
@@ -79,7 +64,6 @@
     (some #(string-contains? % filter-str) labels)))
 
 (defn handle-filter [filter-str]
-  (.log js/console filter-str)
   (let [raw-data (:raw-data @state)
         filtered-data (if (not (blank? filter-str))
                         (filter (match-on-all-columns filter-str) raw-data)
@@ -96,12 +80,6 @@
 (defn home []
 
   [:div
-   [:div.row
-    [:div.col-md-5
-     [:input {:type "text"
-              :class :form-control
-              :value (:filter @state)
-              :onChange #(handle-filter (-> % .-target .-value))}]]]
    [:div.row
     [draw-list]]])
 

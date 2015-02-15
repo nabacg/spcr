@@ -32,11 +32,19 @@
   :cljsbuild {
     :builds [{:id "dev"
               :source-paths ["src/cljs"]
-              :compiler {:output-dir "resources/public/js/out",
-                        
-                         :optimizations :whitespace,
-                         :output-to "resources/public/js/app.js",
-                         :source-map "resources/public/js/out.js.map",
+              :compiler {:output-dir "resources/public/js/out"
+                         :asset-path "resources/public/js/out"
+                         :optimizations :none
+                         :output-to "resources/public/js/app.js"
+                         :source-map true
+                         :source-map-timestamp true
+                         :cache-analysis true
                          :pretty-print true}}
+
+             {:id "min"
+              :source-paths ["src/cljs"] ;; <<<<--- the dev source directory is excluded so no dev code
+              :compiler {:output-to "resources/public/js/app.js"
+                         :optimizations :advanced
+                         :pretty-print false}}
              ]}
   :profiles {:uberjar {:aot :all}})
