@@ -35,9 +35,9 @@
                         :source-paths ["src/cljs"]
                         :compiler {:output-dir "resources/public/js/out"
                                    :asset-path "resources/public/js/out"
-                                   :optimizations :none
+                                   :optimizations :whitespace
                                    :output-to "resources/public/js/app.js"
-                                   :source-map true
+                                   :source-map "resources/public/js/app.js.map"
                                    :source-map-timestamp true
                                    :cache-analysis true
                                    :pretty-print true}}

@@ -80,6 +80,7 @@
 (defn home []
 
   [:div
+   [:h2 "All Data"]
    [:div.row
     [draw-list]]])
 
