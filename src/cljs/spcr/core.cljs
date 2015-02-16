@@ -9,6 +9,7 @@
 
 
 (defn home []
-  [:h1 "Hello World from Reagent"])
+  [:h1 "Hello World from Reagent"]
+  [:p "put your grid here"])
 
 (reagent/render-component [home] (.getElementById js/document "app"))
