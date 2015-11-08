@@ -2,6 +2,10 @@
 
 as in Spend Parse Categorize Report is a simple website that allows to upload, parse CSV files and store them in MongoDb, aimed at a help in categorizing expenses via bank statement processing.
 
+## Build status
+
+[![Build Status](https://travis-ci.org/nabacg/spcr.svg?branch=master)](https://travis-ci.org/nabacg/spcr.svg)
+
 ## Installation
 
 For dev installation , download MongoDb from http://www.mongodb.org/downloads
